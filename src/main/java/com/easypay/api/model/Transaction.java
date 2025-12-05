@@ -2,25 +2,28 @@ package com.easypay.api.model;
 
 import com.easypay.api.model.enums.TransactionStatus;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
-@Data
 @Entity
-@NoArgsConstructor
 @Table(name = "tb_transaction")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "idempotency_key")
+    @Column(name = "idempotency_key", unique = true)
     private String idempotencyKey;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -41,4 +44,17 @@ public class Transaction {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime timestamp;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Transaction that = (Transaction) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
