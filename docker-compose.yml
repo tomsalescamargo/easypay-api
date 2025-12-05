@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  postgres-easypay:
+    image: postgres:15-alpine
+    container_name: db_easypay
+    ports:
+      - "${EASYPAY_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${EASYPAY_DB}
+    volumes:
+      - easypay_data:/var/lib/postgresql/data
+    networks:
+      - easypay-network
+
+networks:
+  easypay-network:
+    driver: bridge
+
+volumes:
+  easypay_data:
