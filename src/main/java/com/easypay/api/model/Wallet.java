@@ -16,6 +16,11 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Wallet {
 
+    public Wallet(User user, BigDecimal initialBalance) {
+        this.user = user;
+        this.balance = initialBalance;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
