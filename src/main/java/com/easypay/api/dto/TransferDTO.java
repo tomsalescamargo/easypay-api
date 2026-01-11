@@ -14,5 +14,10 @@ public record TransferDTO(
     String receiverDocument,
 
     @NotNull(message = "Amount is mandatory")
-    BigDecimal amount
+    BigDecimal amount,
+
+    @NotBlank(message = "Password is mandatory")
+    String senderPassword,
+
+    String idempotencyKey
 ) {}
