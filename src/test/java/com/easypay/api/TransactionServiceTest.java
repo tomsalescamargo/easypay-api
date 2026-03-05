@@ -48,6 +48,7 @@ class TransactionServiceTest {
     @Test
     @DisplayName("Should save a new transaction")
     void shouldCreateTransaction() {
+        // --- Arrange ---
         String senderDocument = "12345678910";
         String receiverDocument = "01651352957";
         String rawSenderPassword = "lovespring";
@@ -70,7 +71,6 @@ class TransactionServiceTest {
 
         Wallet receiverWallet = new Wallet(receiverUser, new BigDecimal("100.0"));
 
-        // Mocks
         when(userRepository.findByDocument(senderDocument)).thenReturn(Optional.of(senderUser));
         when(userRepository.findByDocument(receiverDocument)).thenReturn(Optional.of(receiverUser));
 
@@ -82,9 +82,10 @@ class TransactionServiceTest {
         when(walletRepository.save(any(Wallet.class))).thenAnswer(i -> i.getArguments()[0]);
         when(transactionRepository.save(any(Transaction.class))).thenAnswer(i -> i.getArguments()[0]);
 
+        // --- Act ---
         Transaction result = transactionService.createTransaction(transferDTO);
 
-        // Verifications
+        // --- Assert ---
         assertNotNull(result);
         assertEquals(new BigDecimal("75.0"), senderWallet.getBalance());
         assertEquals(new BigDecimal("125.0"), receiverWallet.getBalance());
@@ -96,6 +97,7 @@ class TransactionServiceTest {
     @Test
     @DisplayName("Should block transaction if sender has insufficient balance")
     void shouldBlockInsufficientBalance() {
+        // --- Arrange ---
         String senderDocument = "12345678910";
         String receiverDocument = "01651352957";
         String rawSenderPassword = "lovespring";
@@ -126,11 +128,13 @@ class TransactionServiceTest {
         when(walletRepository.findByUser_Id(senderId)).thenReturn(Optional.of(senderWallet));
         when(walletRepository.findByUser_Id(receiverId)).thenReturn(Optional.of(receiverWallet));
 
+        // --- Act & Assert ---
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> transactionService.createTransaction(transferDTO));
 
         assertEquals("Insufficient balance", exception.getMessage());
 
+        // Verifying that save methods were never called (rollback behavior)
         verify(walletRepository, times(0)).save(any());
         verify(transactionRepository, times(0)).save(any());
     }
@@ -138,6 +142,7 @@ class TransactionServiceTest {
     @Test
     @DisplayName("Should block transaction if sender is a Merchant")
     void shouldBlockMerchantTransaction() {
+        // --- Arrange ---
         String senderDocument = "12345678911";
         String receiverDocument = "01651352957";
         String rawSenderPassword = "lovejava";
@@ -148,6 +153,8 @@ class TransactionServiceTest {
 
         UUID senderId = UUID.randomUUID();
         String senderPassword = "encoded-sender-password";
+
+        // Sender is a Merchant
         User senderUser = new User(senderId, "Rodrigo", "rodrigo@gmail.com", senderPassword,
                 senderDocument, UserType.MERCHANT, LocalDateTime.now());
 
@@ -165,6 +172,7 @@ class TransactionServiceTest {
 
         when(passwordEncoder.matches(rawSenderPassword, senderPassword)).thenReturn(true);
 
+        // --- Act & Assert ---
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> transactionService.createTransaction(transferDTO));
 
