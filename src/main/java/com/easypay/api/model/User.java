@@ -20,6 +20,17 @@ import java.util.UUID;
 @NoArgsConstructor
 public class User {
 
+    public User(UUID id, String name, String email, String password,
+                String document, UserType userType, LocalDateTime createdAt) {
+            this.id = id;
+            this.name = name;
+            this.email = email;
+            this.password = password;
+            this.document = document;
+            this.userType = userType;
+            this.createdAt = createdAt;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
